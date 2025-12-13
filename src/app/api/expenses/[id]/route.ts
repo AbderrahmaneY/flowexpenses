@@ -17,6 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             include: {
                 user: { select: { name: true, email: true, managerId: true } },
                 attachments: true,
+                lineItems: true,
                 approvalSteps: {
                     include: { approvedByUser: { select: { name: true } } },
                     orderBy: { createdAt: 'desc' }

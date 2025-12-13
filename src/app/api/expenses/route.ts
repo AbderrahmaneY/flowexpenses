@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
             where: whereClause,
             include: {
                 user: { select: { name: true, email: true } },
-                attachments: true
+                attachments: true,
+                lineItems: true
             },
             orderBy: { createdAt: 'desc' }
         });
@@ -47,6 +48,13 @@ export async function GET(request: NextRequest) {
 
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+
+interface LineItem {
+    description: string;
+    category: string;
+    amount: number | string;
+    dateOfExpense: string;
+}
 
 export async function POST(request: NextRequest) {
     const session = await getSession();
@@ -83,28 +91,45 @@ export async function POST(request: NextRequest) {
             body = await request.json();
         }
 
-        const { title, description, category, amount, currency, dateOfExpense, status } = body;
+        const { title, description, category, amount, currency, dateOfExpense, status, lineItems } = body;
 
         // Validation
-        if (!title || !amount || !dateOfExpense) {
-            return NextResponse.json({ error: 'Missing required fields (Title, Amount, Date)' }, { status: 400 });
+        if (!title) {
+            return NextResponse.json({ error: 'Missing required field: Title' }, { status: 400 });
         }
 
-        const parsedAmount = parseFloat(amount);
-        if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            return NextResponse.json({ error: 'Invalid amount. Must be a positive number.' }, { status: 400 });
-        }
+        // Handle line items or single expense
+        let totalAmount = 0;
+        let lineItemsData: any[] = [];
 
-        // Fetch user to check manager
-        const user = await prisma.user.findUnique({
-            where: { id: session.userId },
-            select: { managerId: true }
-        });
+        if (lineItems && Array.isArray(lineItems) && lineItems.length > 0) {
+            // Multi-line expense
+            for (const item of lineItems as LineItem[]) {
+                const itemAmount = parseFloat(String(item.amount));
+                if (isNaN(itemAmount) || itemAmount <= 0) {
+                    return NextResponse.json({ error: `Invalid amount in line item: ${item.description}` }, { status: 400 });
+                }
+                totalAmount += itemAmount;
+                lineItemsData.push({
+                    description: String(item.description || 'Expense Item'),
+                    category: String(item.category || 'other'),
+                    amount: itemAmount,
+                    dateOfExpense: new Date(item.dateOfExpense || dateOfExpense)
+                });
+            }
+        } else {
+            // Single expense (backward compatibility)
+            if (!amount || !dateOfExpense) {
+                return NextResponse.json({ error: 'Missing required fields (Amount, Date) for single expense' }, { status: 400 });
+            }
+            const parsedAmount = parseFloat(String(amount));
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                return NextResponse.json({ error: 'Invalid amount. Must be a positive number.' }, { status: 400 });
+            }
+            totalAmount = parsedAmount;
+        }
 
         // Determine initial status
-        // If user has no manager, expense is effectively submitted to accounting (but status remains SUBMITTED for now)
-        // If user has manager, status is SUBMITTED (to manager)
-        // Accounting will filter based on managerId presence.
         let initialStatus = status === 'SUBMITTED' ? 'SUBMITTED' : 'DRAFT';
 
         // Prepare File Attachment Logic
@@ -129,7 +154,7 @@ export async function POST(request: NextRequest) {
                     filePath: `/uploads/${filename}`,
                     fileType: file.type || 'application/octet-stream',
                     fileSize: file.size,
-                    fileName: file.name // Added fileName from previous requirement
+                    fileName: file.name
                 }
             };
         }
@@ -139,12 +164,18 @@ export async function POST(request: NextRequest) {
                 userId: session.userId,
                 title: String(title),
                 description: description ? String(description) : null,
-                category: String(category),
-                amount: parsedAmount,
+                category: category ? String(category) : null,
+                amount: totalAmount,
                 currency: currency || 'USD',
-                dateOfExpense: new Date(dateOfExpense),
+                dateOfExpense: new Date(dateOfExpense || new Date()),
                 currentStatus: initialStatus,
-                attachments: attachmentData
+                attachments: attachmentData,
+                lineItems: lineItemsData.length > 0 ? {
+                    create: lineItemsData
+                } : undefined
+            },
+            include: {
+                lineItems: true
             }
         });
 
@@ -158,3 +189,4 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+

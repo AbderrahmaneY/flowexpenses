@@ -31,6 +31,8 @@ export default function ApprovalsClient({ user }: { user: User }) {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<number | null>(null);
+    const [rejectingId, setRejectingId] = useState<number | null>(null);
+    const [rejectComment, setRejectComment] = useState('');
 
     useEffect(() => {
         fetchPendingApprovals();
@@ -50,18 +52,21 @@ export default function ApprovalsClient({ user }: { user: User }) {
         }
     }
 
-    async function handleAction(expenseId: number, action: 'approve' | 'reject') {
+    async function handleAction(expenseId: number, action: 'approve' | 'reject', comment?: string) {
         setActionLoading(expenseId);
         try {
             const res = await fetch('/api/approvals/action', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ expenseId, action }),
+                body: JSON.stringify({ expenseId, action, comment }),
             });
 
             if (res.ok) {
                 // Remove from list after action
                 setExpenses(expenses.filter(e => e.id !== expenseId));
+                // Clear rejection state
+                setRejectingId(null);
+                setRejectComment('');
             } else {
                 const data = await res.json();
                 console.error('Action failed:', data.error);
@@ -92,6 +97,26 @@ export default function ApprovalsClient({ user }: { user: User }) {
     function formatStatus(status: string): string {
         return status.replace(/_/g, ' ');
     }
+
+    const handleRejectClick = (id: number) => {
+        setRejectingId(id);
+        setRejectComment('');
+    };
+
+    const submitRejection = () => {
+        if (rejectingId) {
+            if (!rejectComment.trim()) {
+                alert('Please enter a reason for rejection');
+                return;
+            }
+            handleAction(rejectingId, 'reject', rejectComment.trim());
+        }
+    };
+
+    const closeRejectModal = () => {
+        setRejectingId(null);
+        setRejectComment('');
+    };
 
     if (loading) {
         return (
@@ -169,7 +194,7 @@ export default function ApprovalsClient({ user }: { user: User }) {
                                                 {actionLoading === expense.id ? '...' : 'Approve'}
                                             </button>
                                             <button
-                                                onClick={() => handleAction(expense.id, 'reject')}
+                                                onClick={() => handleRejectClick(expense.id)}
                                                 className="btn btn-danger btn-sm"
                                                 disabled={actionLoading === expense.id}
                                             >
@@ -181,6 +206,50 @@ export default function ApprovalsClient({ user }: { user: User }) {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Rejection Modal */}
+            {rejectingId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="card w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+                        <div className="card-header">
+                            <h3 className="card-title">Reject Expense</h3>
+                        </div>
+                        <div className="p-4 pt-0">
+                            <p className="text-sm text-gray-500 mb-4">
+                                Please provide a reason for rejecting this expense report. This will be visible to the employee.
+                            </p>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Reason for Rejection <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    className="form-input min-h-[100px]"
+                                    placeholder="e.g. Policy violation, missing receipt..."
+                                    value={rejectComment}
+                                    onChange={(e) => setRejectComment(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2 p-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
+                            <button
+                                onClick={closeRejectModal}
+                                className="btn btn-secondary"
+                                disabled={actionLoading === rejectingId}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={submitRejection}
+                                className="btn btn-danger"
+                                disabled={actionLoading === rejectingId}
+                            >
+                                {actionLoading === rejectingId ? 'Rejecting...' : 'Confirm Rejection'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

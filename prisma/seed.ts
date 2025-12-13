@@ -123,7 +123,7 @@ async function main() {
         data: {
             name: 'Eric Employee',
             email: 'eric@flow.com',
-            password: 'password123',
+            password: hashedPassword,
             roleId: employeeRole.id,
             managerId: manager.id,
         },

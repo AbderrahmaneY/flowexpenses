@@ -23,30 +23,7 @@ export default function ManagerDashboard({ user }: { user: any }) {
         });
     }, []);
 
-    const handleQuickAction = async (expenseId: number, action: 'APPROVE' | 'REJECT') => {
-        if (!confirm(`Are you sure you want to ${action.toLowerCase()} this expense?`)) return;
 
-        setActionLoading(expenseId);
-        try {
-            const res = await fetch('/api/approvals/action', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ expenseId, action })
-            });
-
-            if (res.ok) {
-                // Optimistic update: remove from list
-                setApprovals(current => current.filter(a => a.id !== expenseId));
-            } else {
-                alert('Action failed');
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Network error');
-        } finally {
-            setActionLoading(null);
-        }
-    };
 
     return (
         <div className="space-y-8">
@@ -135,7 +112,7 @@ export default function ManagerDashboard({ user }: { user: any }) {
                                         <th>Submitted By</th>
                                         <th>Amount</th>
                                         <th>Date</th>
-                                        <th className="text-right">Quick Actions</th>
+                                        <th className="text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -154,20 +131,6 @@ export default function ManagerDashboard({ user }: { user: any }) {
                                             <td className="text-gray-500 text-sm">{new Date(a.dateOfExpense).toLocaleDateString()}</td>
                                             <td className="text-right">
                                                 <div className="flex justify-end gap-2">
-                                                    <button
-                                                        onClick={() => handleQuickAction(a.id, 'APPROVE')}
-                                                        disabled={actionLoading === a.id}
-                                                        className="btn btn-success btn-sm"
-                                                    >
-                                                        Approve
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleQuickAction(a.id, 'REJECT')}
-                                                        disabled={actionLoading === a.id}
-                                                        className="btn btn-danger btn-sm"
-                                                    >
-                                                        Reject
-                                                    </button>
                                                     <Link href={`/expenses/${a.id}`} className="btn btn-ghost btn-sm">
                                                         Details
                                                     </Link>

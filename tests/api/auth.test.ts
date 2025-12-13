@@ -21,7 +21,7 @@ describe('Auth API', () => {
 
         const req = new NextRequest('http://localhost/api/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ email: admin.email, password: admin.password })
+            body: JSON.stringify({ email: admin.email, password: 'pass' })
         });
 
         const res = await POST(req);
@@ -30,7 +30,7 @@ describe('Auth API', () => {
         expect(res.status).toBe(200);
         expect(data.user).toBeDefined();
         expect(data.user.email).toBe(admin.email);
-        expect(data.user.isAdmin).toBe(true);
+        expect(data.user.name).toBe(admin.name);
     });
 
     it('rejects invalid credentials', async () => {

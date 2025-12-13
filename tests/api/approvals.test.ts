@@ -17,7 +17,7 @@ describe('Approvals API', () => {
         // Create a submitted expense for Employee
         const exp = await prisma.expenseReport.create({
             data: {
-                userId: users.employee.id,
+                userId: users.employee.userId,
                 title: 'Approval Test',
                 category: 'meal',
                 amount: 50,

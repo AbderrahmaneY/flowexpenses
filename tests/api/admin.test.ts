@@ -32,8 +32,8 @@ describe('Admin API', () => {
             body: JSON.stringify({
                 name: 'New Guy',
                 email: 'new@test.com',
-                password: 'pass',
-                canSubmit: true
+                password: 'password123',
+                roleId: users.employee.roleId
             })
         });
         const res = await POST(req);

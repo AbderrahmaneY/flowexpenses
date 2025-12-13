@@ -73,7 +73,6 @@ export default function AccountingDashboardPage() {
     };
 
     const handlePay = async (expenseId: number) => {
-        if (!confirm('Mark this expense as PAID?')) return;
         await submitAction(expenseId, 'PAY');
     };
 
@@ -126,7 +125,7 @@ export default function AccountingDashboardPage() {
         router.push('/login');
     };
 
-    function formatCurrency(amount: number, currency: string = 'USD') {
+    function formatCurrency(amount: number, currency: string = 'MAD') {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: currency

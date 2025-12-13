@@ -61,10 +61,10 @@ describe('Expenses API', () => {
         // Actually we are in a test file, we can import prisma
         const { prisma } = await import('@/lib/prisma');
         await prisma.expenseReport.create({
-            data: { userId: users.employee.id, title: 'Emp Expense', amount: 10, category: 'meal', dateOfExpense: new Date() }
+            data: { userId: users.employee.userId, title: 'Emp Expense', amount: 10, category: 'meal', dateOfExpense: new Date() }
         });
         await prisma.expenseReport.create({
-            data: { userId: users.manager.id, title: 'Mgr Expense', amount: 20, category: 'meal', dateOfExpense: new Date() }
+            data: { userId: users.manager.userId, title: 'Mgr Expense', amount: 20, category: 'meal', dateOfExpense: new Date() }
         });
 
         const req = new NextRequest('http://localhost/api/expenses');
@@ -79,8 +79,8 @@ describe('Expenses API', () => {
         vi.spyOn(AuthLib, 'getSession').mockResolvedValue(users.accounting);
 
         const { prisma } = await import('@/lib/prisma');
-        await prisma.expenseReport.create({ data: { userId: users.employee.id, title: 'Emp Expense', amount: 10, category: 'meal', dateOfExpense: new Date() } });
-        await prisma.expenseReport.create({ data: { userId: users.manager.id, title: 'Mgr Expense', amount: 20, category: 'meal', dateOfExpense: new Date() } });
+        await prisma.expenseReport.create({ data: { userId: users.employee.userId, title: 'Emp Expense', amount: 10, category: 'meal', dateOfExpense: new Date() } });
+        await prisma.expenseReport.create({ data: { userId: users.manager.userId, title: 'Mgr Expense', amount: 20, category: 'meal', dateOfExpense: new Date() } });
 
         const req = new NextRequest('http://localhost/api/expenses');
         const res = await GET(req);

@@ -60,17 +60,32 @@ model ExpenseReport {
   user            User     @relation(fields: [userId], references: [id])
   title           String
   description     String?
-  category        String
-  amount          Float
+  category        String?  // Optional now - used for single-item expenses or legacy data
   currency        String   @default("USD")
+  // Total amount (calculated from line items, or manual if no items)
+  amount          Float    @default(0)
   dateOfExpense   DateTime
   currentStatus   String   @default("DRAFT") // DRAFT, SUBMITTED, MANAGER_APPROVED, MANAGER_REJECTED, ACCOUNTING_VALIDATED, ACCOUNTING_REJECTED, PAID
   
+  // Line items for multi-expense reports
+  lineItems       ExpenseLineItem[]
   attachments     Attachment[]
   approvalSteps   ApprovalStep[]
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model ExpenseLineItem {
+  id              Int      @id @default(autoincrement())
+  expenseReportId Int
+  expenseReport   ExpenseReport @relation(fields: [expenseReportId], references: [id], onDelete: Cascade)
+  description     String
+  category        String
+  amount          Float
+  dateOfExpense   DateTime
+  
+  createdAt       DateTime @default(now())
 }
 
 model Attachment {

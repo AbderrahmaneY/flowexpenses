@@ -5,8 +5,8 @@ import { canApproveExpenses, canProcessExpenses, canAccessAdminPanel } from '@/l
 
 export async function GET(request: NextRequest) {
     const session = await getSession();
-    // Strict Access Control: Only Managers and Approvers/Admins can see approvals
-    if (!session || (!canApproveExpenses(session) && !canAccessAdminPanel(session))) {
+    // Strict Access Control: Only Managers, Accounting, and Admins can see approvals
+    if (!session || (!canApproveExpenses(session) && !canProcessExpenses(session) && !canAccessAdminPanel(session))) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

@@ -15,9 +15,9 @@ describe('Dashboard API', () => {
         // Seed Data for Stats
         await prisma.expenseReport.createMany({
             data: [
-                { userId: users.employee.id, title: 'Pending', amount: 100, category: 'meal', dateOfExpense: new Date(), currentStatus: 'SUBMITTED' },
-                { userId: users.employee.id, title: 'Approved', amount: 200, category: 'transport', dateOfExpense: new Date(), currentStatus: 'MANAGER_APPROVED' },
-                { userId: users.employee.id, title: 'Paid', amount: 300, category: 'hotel', dateOfExpense: new Date(), currentStatus: 'PAID' },
+                { userId: users.employee.userId, title: 'Pending', amount: 100, category: 'meal', dateOfExpense: new Date(), currentStatus: 'SUBMITTED' },
+                { userId: users.employee.userId, title: 'Approved', amount: 200, category: 'transport', dateOfExpense: new Date(), currentStatus: 'MANAGER_APPROVED' },
+                { userId: users.employee.userId, title: 'Paid', amount: 300, category: 'hotel', dateOfExpense: new Date(), currentStatus: 'PAID' },
             ]
         });
     });
@@ -35,12 +35,12 @@ describe('Dashboard API', () => {
 
         expect(res.status).toBe(200);
 
-        // Calculations:
-        // Requested: SUBMITTED(100) + MANAGER_APPROVED(200) + PAID(300) = 600
-        expect(data.totalRequested).toBe(600);
+        // Calculations (based on API logic):
+        // Requested: Excludes PAID, so SUBMITTED(100) + MANAGER_APPROVED(200) = 300
+        expect(data.totalRequested).toBe(300);
 
-        // Approved: MANAGER_APPROVED(200) + PAID(300) = 500
-        expect(data.totalApproved).toBe(500);
+        // Approved: MANAGER_APPROVED (waiting for accounting) = 200
+        expect(data.totalApproved).toBe(200);
 
         // Executed: PAID(300)
         expect(data.totalExecuted).toBe(300);

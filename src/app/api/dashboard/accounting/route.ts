@@ -63,9 +63,10 @@ export async function GET(request: NextRequest) {
 
         const byCategory: Record<string, { amount: number, count: number }> = {};
         allExpenses.forEach(exp => {
-            if (!byCategory[exp.category]) byCategory[exp.category] = { amount: 0, count: 0 };
-            byCategory[exp.category].amount += exp.amount;
-            byCategory[exp.category].count += 1;
+            const cat = exp.category || 'uncategorized';
+            if (!byCategory[cat]) byCategory[cat] = { amount: 0, count: 0 };
+            byCategory[cat].amount += exp.amount;
+            byCategory[cat].count += 1;
         });
 
         // Monthly Trend (Simplified to Paid only)

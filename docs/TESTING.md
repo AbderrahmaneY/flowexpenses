@@ -49,7 +49,7 @@ These users are seeded in the database (via `npm run db:seed` or `prisma/seed.ts
 - [ ] **Delete**: Can delete a user (but not self)
 - [ ] **Guard**: Admin is also a submitter by default (flag check)
 
-### Edge Cases & UI
+### Edge Cases & UI ++
 - [ ] **Empty States**: Dashboard/Lists show friendly message when empty
 - [ ] **Responsiveness**: Mobile view works for tables and forms
 - [ ] **YolaFresh**: Styles (colors, fonts) match the new design system
