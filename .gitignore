@@ -37,8 +37,8 @@ server.log
 !.env.example
 
 # database files
-*.db
-prisma/*.db
+# *.db
+# prisma/*.db
 
 # uploads (user content)
 public/uploads/*
