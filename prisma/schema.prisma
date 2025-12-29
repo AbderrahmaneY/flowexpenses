@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  
+  // Permissions
+  canSubmit   Boolean  @default(false)
+  canApprove  Boolean  @default(false)
+  canProcess  Boolean  @default(false)
+  isAdmin     Boolean  @default(false)
+  
+  // Relations
+  users       User[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String   // Simple auth
+
+  // Password policy
+  mustChangePassword Boolean @default(false)
+
+  // Role assignment (replaces individual flags)
+  roleId    Int
+  role      Role     @relation(fields: [roleId], references: [id])
+
+  // Manager assignment
+  managerId Int?
+  manager   User?    @relation("UserManagement", fields: [managerId], references: [id])
+  reports   User[]   @relation("UserManagement")
+
+  // Relations
+  expenses        ExpenseReport[]
+  approvalSteps   ApprovalStep[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExpenseReport {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  title           String
+  description     String?
+  category        String?  // Optional now - used for single-item expenses or legacy data
+  currency        String   @default("USD")
+  // Total amount (calculated from line items, or manual if no items)
+  amount          Float    @default(0)
+  dateOfExpense   DateTime
+  currentStatus   String   @default("DRAFT") // DRAFT, SUBMITTED, MANAGER_APPROVED, MANAGER_REJECTED, ACCOUNTING_VALIDATED, ACCOUNTING_REJECTED, PAID
+  
+  // Line items for multi-expense reports
+  lineItems       ExpenseLineItem[]
+  attachments     Attachment[]
+  approvalSteps   ApprovalStep[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ExpenseLineItem {
+  id              Int      @id @default(autoincrement())
+  expenseReportId Int
+  expenseReport   ExpenseReport @relation(fields: [expenseReportId], references: [id], onDelete: Cascade)
+  description     String
+  category        String
+  amount          Float
+  dateOfExpense   DateTime
+  
+  createdAt       DateTime @default(now())
+}
+
+model Attachment {
+  id              Int      @id @default(autoincrement())
+  expenseReportId Int
+  expenseReport   ExpenseReport @relation(fields: [expenseReportId], references: [id])
+  filePath        String
+  fileName        String
+  fileType        String
+  fileSize        Int
+  createdAt       DateTime @default(now())
+}
+
+model ApprovalStep {
+  id              Int      @id @default(autoincrement())
+  expenseReportId Int
+  expenseReport   ExpenseReport @relation(fields: [expenseReportId], references: [id])
+  stepType        String   // MANAGER, ACCOUNTING
+  status          String   // PENDING, APPROVED, REJECTED
+  approvedByUserId Int?
+  approvedByUser  User?    @relation(fields: [approvedByUserId], references: [id])
+  comment         String?
+  
+  createdAt       DateTime @default(now())
+  resolvedAt      DateTime?
+}
+
+model RuleConfig {
+  id                       Int      @id @default(autoincrement())
+  category                 String   @unique
+  maxAmountPerExpense      Float
+  perKmRate                Float?
+  // requiresDirectorApproval removed
+}
