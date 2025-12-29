@@ -113,10 +113,10 @@ export default function LoginPage() {
                             <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">manager@flow.com</div>
                             <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">accounting@flow.com</div>
                             <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">admin@flow.com</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </div >
+                    </div >
+                </div >
+            </div >
+        </div >
     );
 }
