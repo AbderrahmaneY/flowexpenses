@@ -25,11 +25,16 @@ export default function LoginPage() {
             if (res.ok) {
                 router.push('/dashboard');
             } else {
-                const data = await res.json();
-                setError(data.error || 'Login failed');
+                const text = await res.text();
+                try {
+                    const data = JSON.parse(text);
+                    setError(data.error || 'Login failed');
+                } catch {
+                    setError(`Server Error: ${text.slice(0, 100)}...`);
+                }
             }
         } catch (err) {
-            setError('Something went wrong');
+            setError(`Something went wrong: ${err instanceof Error ? err.message : String(err)}`);
         } finally {
             setLoading(false);
         }
