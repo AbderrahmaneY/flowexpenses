@@ -18,7 +18,7 @@
 
     | Key | Value |
     | :--- | :--- |
-    | `DATABASE_URL` | Check your specific Transaction Pooler string (port 6543) |
+    | `DATABASE_URL` | Check your specific Transaction Pooler string (port 6543) + `?pgbouncer=true` |
     | `NEXT_PUBLIC_SUPABASE_URL` | Copy from Supabase -> Settings -> API |
     | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Copy from Supabase -> Settings -> API |
     | `AUTH_SECRET` | `63073badd913892f07ab822e9bf2e75e273956c62867fed8936ea415617541bb` |
@@ -26,7 +26,7 @@
     | `DATA_API_KEY` | `3acb061d846618c51580eab9a01849f8` |
 
     ### What do these do?
-    - **`DATABASE_URL`**: The address of your cloud database. It tells your app where to find and save data.
+    - **`DATABASE_URL`**: The address of your cloud database. It tells your app where to find and save data. **CRITICAL: Ensure it ends with `?pgbouncer=true` (or `&pgbouncer=true`) for Supabase.**
     - **`NEXT_PUBLIC_SUPABASE_URL`**: The public web address of your Supabase project (like a home address for your backend).
     - **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: A safe public key that allows your website to talk to Supabase (e.g., for login).
     - **`AUTH_SECRET`**: A private secret code used to "sign" user sessions. It ensures no one can fake being logged in.
