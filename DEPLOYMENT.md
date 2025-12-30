@@ -25,6 +25,14 @@
     | `WEBHOOK_API_KEY` | `3c1f28b7a25a84b1fd1f79e2968909b3` |
     | `DATA_API_KEY` | `3acb061d846618c51580eab9a01849f8` |
 
+    ### What do these do?
+    - **`DATABASE_URL`**: The address of your cloud database. It tells your app where to find and save data.
+    - **`NEXT_PUBLIC_SUPABASE_URL`**: The public web address of your Supabase project (like a home address for your backend).
+    - **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: A safe public key that allows your website to talk to Supabase (e.g., for login).
+    - **`AUTH_SECRET`**: A private secret code used to "sign" user sessions. It ensures no one can fake being logged in.
+    - **`WEBHOOK_API_KEY`**: A password you give to other systems (like an ERP) so they can send data to your app.
+    - **`DATA_API_KEY`**: A password for your data team (or scripts) to download raw data safely.
+
 3.  **Deploy**:
     - Click **"Deploy"**.
     - Wait for the build to complete.
