@@ -43,6 +43,14 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Check if user is active
+        if (user.isActive === false) {
+            return NextResponse.json(
+                { error: 'Your account has been deactivated. Please contact an administrator.' },
+                { status: 403 }
+            );
+        }
+
         // Credentials valid - create session with permissions from Role
         await login({
             userId: user.id,

@@ -24,11 +24,6 @@ export default function RootLayout({
         <SecurityBanner />
         <EasterEggs />
         {children}
-        <footer className="text-center py-6 text-gray-500 text-sm border-t border-gray-100 mt-8">
-          <p>© Abderrahmane Naciri Bennani - Dec 2025</p>
-          <p className="mt-1 text-xs text-gray-400">YoLa Fresh - Expense Management</p>
-          <p className="mt-1 text-xs text-gray-300">Contact: demo@yolafresh.com</p>
-        </footer>
       </body>
     </html>
   );

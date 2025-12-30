@@ -104,7 +104,7 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
                                 <thead>
                                     <tr className="border-b border-gray-100 bg-gray-50/50">
                                         <th className="p-4 font-semibold text-gray-600">User</th>
-                                        <th className="p-4 font-semibold text-gray-600">Current Role</th>
+                                        <th className="p-4 font-semibold text-gray-600">Status</th>
                                         <th className="p-4 font-semibold text-gray-600">Permissions (Read-Only)</th>
                                         <th className="p-4 font-semibold text-gray-600 text-right">Actions</th>
                                     </tr>
@@ -119,15 +119,11 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <select
-                                                    value={user.roleId}
-                                                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                                                    className="form-input py-1 text-sm border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                                >
-                                                    {roles.map(role => (
-                                                        <option key={role.id} value={role.id}>{role.name}</option>
-                                                    ))}
-                                                </select>
+                                                {user.isActive ? (
+                                                    <span className="badge badge-green">Active</span>
+                                                ) : (
+                                                    <span className="badge badge-red">Inactive</span>
+                                                )}
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex flex-wrap gap-2">
@@ -139,6 +135,31 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
                                             </td>
                                             <td className="p-4 text-right">
                                                 <div className="flex items-center justify-end gap-3">
+                                                    <button
+                                                        onClick={async () => {
+                                                            const action = user.isActive ? 'deactivate' : 'activate';
+                                                            if (!confirm(`Are you sure you want to ${action} ${user.name}?`)) return;
+
+                                                            try {
+                                                                const res = await fetch(`/api/admin/users/${user.id}`, {
+                                                                    method: 'PUT',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ isActive: !user.isActive })
+                                                                });
+
+                                                                if (res.ok) {
+                                                                    setUsers(users.map(u => u.id === user.id ? { ...u, isActive: !u.isActive } : u));
+                                                                } else {
+                                                                    alert('Failed to update status');
+                                                                }
+                                                            } catch (e) {
+                                                                alert('Error updating status');
+                                                            }
+                                                        }}
+                                                        className={`${user.isActive ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'} font-medium text-sm`}
+                                                    >
+                                                        {user.isActive ? '🚫 Deactivate' : '✅ Activate'}
+                                                    </button>
                                                     <button
                                                         onClick={async () => {
                                                             const newPwd = prompt(`Enter new password for ${user.name} (min 8 characters):`);

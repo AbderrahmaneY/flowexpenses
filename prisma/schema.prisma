@@ -36,6 +36,9 @@ model User {
 
   // Password policy
   mustChangePassword Boolean @default(false)
+  
+  // Account status
+  isActive           Boolean @default(true)
 
   // Role assignment (replaces individual flags)
   roleId    Int

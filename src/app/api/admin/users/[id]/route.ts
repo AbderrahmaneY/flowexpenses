@@ -28,6 +28,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             updateData.managerId = managerId ? parseInt(managerId) : null;
         }
 
+        if (typeof body.isActive === 'boolean') {
+            updateData.isActive = body.isActive;
+        }
+
         const updatedUser = await prisma.user.update({
             where: { id: userId },
             data: updateData,

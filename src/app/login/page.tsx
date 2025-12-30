@@ -111,15 +111,6 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100">
-                        <p className="text-xs text-center text-gray-500 font-medium mb-3">DEMO CREDENTIALS</p>
-                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                            <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">emma@flow.com</div>
-                            <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">manager@flow.com</div>
-                            <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">accounting@flow.com</div>
-                            <div className="p-2 bg-gray-50 rounded text-center border border-gray-100">admin@flow.com</div>
-                        </div >
-                    </div >
                 </div >
             </div >
         </div >
