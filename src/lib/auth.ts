@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const secretKey = 'secret-key-for-dev-only'; // In prod, use env var
+const secretKey = process.env.AUTH_SECRET || 'secret-key-for-dev-only';
 const key = new TextEncoder().encode(secretKey);
 
 export interface SessionPayload {

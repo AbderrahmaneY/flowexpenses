@@ -15,11 +15,24 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
             fetch('/api/admin/roles').then(r => r.json())
         ]).then(([usersData, rolesData]) => {
             console.log('Users fetched:', usersData);
-            setUsers(usersData);
-            setRoles(rolesData);
+            if (Array.isArray(usersData)) {
+                setUsers(usersData);
+            } else {
+                console.error('Expected users array, got:', usersData);
+                setUsers([]);
+            }
+
+            if (Array.isArray(rolesData)) {
+                setRoles(rolesData);
+            } else {
+                console.error('Expected roles array, got:', rolesData);
+                setRoles([]);
+            }
             setLoading(false);
         }).catch(err => {
             console.error('Fetch error:', err);
+            setUsers([]);
+            setRoles([]);
             setLoading(false);
         });
     }, []);
