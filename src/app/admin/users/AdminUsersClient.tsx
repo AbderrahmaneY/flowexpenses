@@ -9,30 +9,32 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
     const [roles, setRoles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const [error, setError] = useState('');
+
     useEffect(() => {
         Promise.all([
-            fetch('/api/admin/users').then(r => r.json()),
+            fetch('/api/admin/users').then(async r => {
+                if (!r.ok) throw new Error(await r.text());
+                return r.json();
+            }),
             fetch('/api/admin/roles').then(r => r.json())
         ]).then(([usersData, rolesData]) => {
-            console.log('Users fetched:', usersData);
             if (Array.isArray(usersData)) {
                 setUsers(usersData);
             } else {
                 console.error('Expected users array, got:', usersData);
-                setUsers([]);
+                setError('Invalid data received from server');
             }
 
             if (Array.isArray(rolesData)) {
                 setRoles(rolesData);
             } else {
-                console.error('Expected roles array, got:', rolesData);
                 setRoles([]);
             }
             setLoading(false);
         }).catch(err => {
             console.error('Fetch error:', err);
-            setUsers([]);
-            setRoles([]);
+            setError(err.message || 'Failed to load users');
             setLoading(false);
         });
     }, []);
@@ -103,10 +105,10 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-gray-100 bg-gray-50/50">
-                                        <th className="p-4 font-semibold text-gray-600">User</th>
-                                        <th className="p-4 font-semibold text-gray-600">Status</th>
-                                        <th className="p-4 font-semibold text-gray-600">Permissions (Read-Only)</th>
-                                        <th className="p-4 font-semibold text-gray-600 text-right">Actions</th>
+                                        <th className="p-4 font-semibold text-gray-600 w-1/4">User</th>
+                                        <th className="p-4 font-semibold text-gray-600 w-1/6">Status</th>
+                                        <th className="p-4 font-semibold text-gray-600 w-1/3">Permissions (Read-Only)</th>
+                                        <th className="p-4 font-semibold text-gray-600 text-right w-1/4">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -198,6 +200,15 @@ export default function AdminUsersClient({ user: sessionUser }: { user: any }) {
                                     ))}
                                 </tbody>
                             </table>
+                            {error ? (
+                                <div className="p-8 text-center text-red-500">
+                                    Error loading users: {error}
+                                </div>
+                            ) : users.length === 0 ? (
+                                <div className="p-8 text-center text-gray-500">
+                                    No users found.
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                 )}
